@@ -1,1 +1,659 @@
 
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Diabetes Risk Prediction</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: linear-gradient(135deg, #eef6ff, #f8fbff);
+            min-height: 100vh;
+            color: #1f2937;
+        }
+
+        .header {
+            background: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 20px 40px;
+        }
+
+        .header-content {
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        .logo {
+            font-size: 26px;
+            font-weight: bold;
+            color: #2563eb;
+        }
+
+        .subtitle {
+            margin-top: 5px;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .intro {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .intro h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+            color: #111827;
+        }
+
+        .intro p {
+            color: #6b7280;
+            font-size: 16px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 18px;
+            padding: 35px;
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
+        }
+
+        .section-title {
+            font-size: 21px;
+            font-weight: bold;
+            margin-bottom: 25px;
+            color: #111827;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 22px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #374151;
+        }
+
+        .hint {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-top: 5px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 13px 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 9px;
+            font-size: 15px;
+            background: white;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .button-container {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 15px 45px;
+            border-radius: 10px;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+
+        button:disabled {
+            background: #93c5fd;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: 14px;
+            text-align: center;
+        }
+
+        .result.success {
+            display: block;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+        }
+
+        .result.error {
+            display: block;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+        }
+
+        .result-title {
+            font-size: 25px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .probability {
+            font-size: 38px;
+            font-weight: bold;
+            color: #2563eb;
+            margin: 10px 0;
+        }
+
+        .result-description {
+            color: #4b5563;
+            margin-top: 8px;
+        }
+
+        .loading {
+            display: none;
+            margin-top: 20px;
+            color: #2563eb;
+            font-weight: 600;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px 20px;
+            color: #9ca3af;
+            font-size: 13px;
+        }
+
+        .disclaimer {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-radius: 10px;
+            color: #92400e;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 700px) {
+            .header {
+                padding: 18px 20px;
+            }
+
+            .intro h1 {
+                font-size: 28px;
+            }
+
+            .card {
+                padding: 22px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">DiabetesCare AI</div>
+            <div class="subtitle">
+                Machine Learning Based Diabetes Risk Prediction
+            </div>
+        </div>
+    </header>
+
+
+    <main class="container">
+
+        <div class="intro">
+            <h1>Diabetes Risk Prediction</h1>
+
+            <p>
+                Enter the patient's health information to generate
+                a machine learning prediction.
+            </p>
+        </div>
+
+
+        <div class="card">
+
+            <div class="section-title">
+                Patient Information
+            </div>
+
+
+            <form id="predictionForm">
+
+                <div class="form-grid">
+
+                    <!-- Gender -->
+                    <div class="form-group">
+                        <label for="gender">Gender</label>
+
+                        <select id="gender" required>
+                            <option value="">Select gender</option>
+                            <option value="Female">Female</option>
+                            <option value="Male">Male</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+
+                    <!-- Age -->
+                    <div class="form-group">
+                        <label for="age">Age</label>
+
+                        <input
+                            type="number"
+                            id="age"
+                            min="0"
+                            max="120"
+                            step="0.1"
+                            placeholder="Example: 45"
+                            required
+                        >
+                    </div>
+
+
+                    <!-- Hypertension -->
+                    <div class="form-group">
+                        <label for="hypertension">
+                            Hypertension
+                        </label>
+
+                        <select id="hypertension" required>
+                            <option value="">Select</option>
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </select>
+
+                        <span class="hint">
+                            Does the patient have hypertension?
+                        </span>
+                    </div>
+
+
+                    <!-- Heart Disease -->
+                    <div class="form-group">
+                        <label for="heart_disease">
+                            Heart Disease
+                        </label>
+
+                        <select id="heart_disease" required>
+                            <option value="">Select</option>
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </select>
+
+                        <span class="hint">
+                            Does the patient have heart disease?
+                        </span>
+                    </div>
+
+
+                    <!-- Smoking -->
+                    <div class="form-group">
+                        <label for="smoking_history">
+                            Smoking History
+                        </label>
+
+                        <select id="smoking_history" required>
+                            <option value="">Select smoking history</option>
+                            <option value="never">Never</option>
+                            <option value="No Info">No Info</option>
+                            <option value="current">Current</option>
+                            <option value="former">Former</option>
+                            <option value="ever">Ever</option>
+                            <option value="not current">Not Current</option>
+                        </select>
+                    </div>
+
+
+                    <!-- BMI -->
+                    <div class="form-group">
+                        <label for="bmi">BMI</label>
+
+                        <input
+                            type="number"
+                            id="bmi"
+                            min="10"
+                            max="80"
+                            step="0.1"
+                            placeholder="Example: 27.5"
+                            required
+                        >
+
+                        <span class="hint">
+                            Body Mass Index
+                        </span>
+                    </div>
+
+
+                    <!-- HbA1c -->
+                    <div class="form-group">
+                        <label for="HbA1c_level">
+                            HbA1c Level
+                        </label>
+
+                        <input
+                            type="number"
+                            id="HbA1c_level"
+                            min="3"
+                            max="20"
+                            step="0.1"
+                            placeholder="Example: 6.2"
+                            required
+                        >
+
+                        <span class="hint">
+                            HbA1c percentage
+                        </span>
+                    </div>
+
+
+                    <!-- Blood Glucose -->
+                    <div class="form-group">
+                        <label for="blood_glucose_level">
+                            Blood Glucose Level
+                        </label>
+
+                        <input
+                            type="number"
+                            id="blood_glucose_level"
+                            min="50"
+                            max="500"
+                            step="1"
+                            placeholder="Example: 140"
+                            required
+                        >
+
+                        <span class="hint">
+                            Blood glucose level
+                        </span>
+                    </div>
+
+                </div>
+
+
+                <div class="button-container">
+
+                    <button
+                        type="submit"
+                        id="predictButton"
+                    >
+                        Predict Diabetes Risk
+                    </button>
+
+                    <div
+                        class="loading"
+                        id="loading"
+                    >
+                        Analyzing patient information...
+                    </div>
+
+                </div>
+
+            </form>
+
+
+            <!-- Result -->
+            <div
+                class="result"
+                id="result"
+            >
+
+                <div
+                    class="result-title"
+                    id="resultTitle"
+                >
+                </div>
+
+                <div
+                    class="probability"
+                    id="probability"
+                >
+                </div>
+
+                <div
+                    class="result-description"
+                    id="resultDescription"
+                >
+                </div>
+
+            </div>
+
+
+            <div class="disclaimer">
+                <strong>Important:</strong>
+                This tool provides a machine-learning prediction based
+                on the information entered. It is not a medical diagnosis
+                and should not replace evaluation by a qualified healthcare
+                professional.
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <footer class="footer">
+        DiabetesCare AI &nbsp;|&nbsp;
+        Machine Learning Prediction System
+    </footer>
+
+
+    <script>
+
+        const form = document.getElementById("predictionForm");
+
+        const button = document.getElementById("predictButton");
+
+        const loading = document.getElementById("loading");
+
+        const result = document.getElementById("result");
+
+        const resultTitle = document.getElementById("resultTitle");
+
+        const probability = document.getElementById("probability");
+
+        const resultDescription =
+            document.getElementById("resultDescription");
+
+
+        form.addEventListener("submit", async function(event) {
+
+            event.preventDefault();
+
+
+            // Hide previous result
+            result.style.display = "none";
+
+            // Disable button
+            button.disabled = true;
+
+            button.textContent = "Predicting...";
+
+            loading.style.display = "block";
+
+
+            // Collect user input
+            const data = {
+
+                gender:
+                    document.getElementById("gender").value,
+
+                age:
+                    parseFloat(
+                        document.getElementById("age").value
+                    ),
+
+                hypertension:
+                    parseInt(
+                        document.getElementById("hypertension").value
+                    ),
+
+                heart_disease:
+                    parseInt(
+                        document.getElementById("heart_disease").value
+                    ),
+
+                smoking_history:
+                    document.getElementById("smoking_history").value,
+
+                bmi:
+                    parseFloat(
+                        document.getElementById("bmi").value
+                    ),
+
+                HbA1c_level:
+                    parseFloat(
+                        document.getElementById("HbA1c_level").value
+                    ),
+
+                blood_glucose_level:
+                    parseFloat(
+                        document.getElementById("blood_glucose_level").value
+                    )
+            };
+
+
+            try {
+
+                // Call Flask API
+                const response = await fetch("/predict", {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify(data)
+
+                });
+
+
+                const output = await response.json();
+
+
+                if (!response.ok || output.status !== "success") {
+
+                    throw new Error(
+                        output.message ||
+                        "Prediction failed."
+                    );
+
+                }
+
+
+                // Convert probability to percentage
+                const probabilityPercent =
+                    (
+                        output.diabetes_probability * 100
+                    ).toFixed(2);
+
+
+                // Display result
+                result.style.display = "block";
+
+                result.className = "result success";
+
+
+                if (output.prediction === 1) {
+
+                    resultTitle.textContent =
+                        "⚠️ Higher Diabetes Risk";
+
+                    resultDescription.textContent =
+                        "The model predicts a positive diabetes outcome.";
+
+                } else {
+
+                    resultTitle.textContent =
+                        "✅ Lower Diabetes Risk";
+
+                    resultDescription.textContent =
+                        "The model predicts a negative diabetes outcome.";
+
+                }
+
+
+                probability.textContent =
+                    probabilityPercent + "%";
+
+
+            } catch (error) {
+
+                result.style.display = "block";
+
+                result.className = "result error";
+
+                resultTitle.textContent =
+                    "Prediction Error";
+
+                probability.textContent = "";
+
+                resultDescription.textContent =
+                    error.message;
+
+            }
+
+
+            // Reset button
+            button.disabled = false;
+
+            button.textContent =
+                "Predict Diabetes Risk";
+
+            loading.style.display = "none";
+
+        });
+
+    </script>
+
+</body>
+
+</html>
